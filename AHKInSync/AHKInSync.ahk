@@ -5,6 +5,8 @@
 */
 
 #Include <logging>
+#Include <string>
+#Include <console>
 
 ;{{{ AHKInSync
 AHKInSync:
@@ -33,6 +35,9 @@ ProcessFiles(pSourcePath = "", pRecursiv = 1) {
 	
 	strSourcePath := RegExReplace(pSourcePath, "[\s\\]+$", "") "\"
 	
+	hSysOut := new Console()
+	nCurrentAttributes := hSysOut.wAttributes
+	
 	strUserLibDir := A_MyDocuments "\AutoHotkey\Lib"
 	SplitPath A_AhkPath,, strStdLibDir 
 	strStdLibDir .= "\Lib"
@@ -48,10 +53,18 @@ ProcessFiles(pSourcePath = "", pRecursiv = 1) {
 		if (RegExMatch(A_LoopFileName, "\.ahk$")) {
 			strSearchFileName := RegExReplace(A_LoopFileDir "\" A_LoopFileName, "^" string_As_Reg_Ex(strSourcePath), "")
 			_log.Detail("Found " strSearchFileName)
-			if (! (tsModifyTime := GetLibTimestamp(strUserLibDir, strSearchFileName))) {
-				tsModifyTime := GetLibTimestamp(strStdLibDir, strSearchFileName)
+			tsUserLibFileModifyTime := GetLibTimestamp(strUserLibDir, strSearchFileName)
+			tsStdLibFileModifyTime := GetLibTimestamp(strStdLibDir, strSearchFileName)
+			if (_log.Logs(Logger.Detail)) {
+				_log.Detail("tsUserLibFileModifyTime for " strSearchFileName " = " tsUserLibFileModifyTime)
+				_log.Detail("tsStdLibFileModifyTime for " strSearchFileName " = " tsStdLibFileModifyTime)
 			}
-			_log.Info("tsModifyTime for " strSearchFileName " = " tsModifyTime)
+			strUserLibFileState := CompareTimestamps(A_LoopFileTimeModified, tsUserLibFileModifyTime)
+			strStdLibFileState := CompareTimestamps(A_LoopFileTimeModified, tsStdLibFileModifyTime)
+			if (strUserLibFileState <> "" or strStdLibFileState <> "") {
+				_log.Info(strSearchFileName " " strUserLibFileState " " strStdLibFileState)
+				hSysOut.Write("#`t" strSearchFileName.Pad(string_TRIM_RIGHT, 64) " " strUserLibFileState.Pad(string_TRIM_RIGHT, 5) " " strStdLibFileState.Pad(string_TRIM_RIGHT, 5))
+			}
 		}
 	}
 	
@@ -78,6 +91,19 @@ GetLibTimestamp(pLibDir, pLibName) {
 	}
 	
 	return _log.Exit(tsModifyTime)
+}
+;}}}
+
+;{{{ CompareTimestamps
+CompareTimestamps(tsFirst, tsSecond) {
+	_log := new Logger("app.ahkinsync." A_ThisFunc)
+	
+	if (_log.Logs(Logger.Input)) {
+		_log.Input("tsFirst", tsFirst)
+		_log.Input("tsSecond", tsSecond)
+	}
+	
+	return _log.Exit(tsSecond = "" ? "" : (tsFirst > tsSecond) ? "Newer" : "Synch")
 }
 ;}}}
 
