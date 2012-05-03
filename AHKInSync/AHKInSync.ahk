@@ -48,10 +48,11 @@ ProcessFiles(pSourcePath = "", pRecursiv = 1) {
 		_log.Finest("strStdLibDir = " strStdLibDir)
 	}
 	
+	hSysOut.Writeln("# Start in directory " strSourcePath)
 	loop %strSourcePath%*.ahk, 0, %pRecursiv%
 	{
 		if (RegExMatch(A_LoopFileName, "\.ahk$")) {
-			strSearchFileName := RegExReplace(A_LoopFileDir "\" A_LoopFileName, "^" string_As_Reg_Ex(strSourcePath), "")
+			strSearchFileName := RegExReplace(A_LoopFileDir "\" A_LoopFileName, "^" String.AsRegEx(strSourcePath), "")
 			_log.Detail("Found " strSearchFileName)
 			tsUserLibFileModifyTime := GetLibTimestamp(strUserLibDir, strSearchFileName)
 			tsStdLibFileModifyTime := GetLibTimestamp(strStdLibDir, strSearchFileName)
@@ -63,7 +64,7 @@ ProcessFiles(pSourcePath = "", pRecursiv = 1) {
 			strStdLibFileState := CompareTimestamps(A_LoopFileTimeModified, tsStdLibFileModifyTime)
 			if (strUserLibFileState <> "" or strStdLibFileState <> "") {
 				_log.Info(strSearchFileName " " strUserLibFileState " " strStdLibFileState)
-				hSysOut.Write("#`t" strSearchFileName.Pad(string_TRIM_RIGHT, 64) " " strUserLibFileState.Pad(string_TRIM_RIGHT, 5) " " strStdLibFileState.Pad(string_TRIM_RIGHT, 5))
+				hSysOut.Write("#`t" strSearchFileName.Pad(String.PAD_LEFT, 64) " " strUserLibFileState.Pad(String.PAD_LEFT, 5) " " strStdLibFileState.Pad(String.PAD_LEFT, 5))
 			}
 		}
 	}
