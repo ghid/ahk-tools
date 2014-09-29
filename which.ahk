@@ -3,7 +3,7 @@
 G_VERSION_INFO := {NAME: "AHK which version ß", ARCH: "generic", BUILD: "n/a"}
 
 #Include <logging>
-#Include <console>
+#Include <ansi>
 #Include <optparser>
 #Include <system>
 #Include *i %A_ScriptDir%\which.versioninfo
@@ -27,10 +27,10 @@ Main:
 		}
 
 		if (G_version) {
-			Console.Write(G_VERSION_INFO.NAME "/" G_VERSION_INFO.ARCH "-b" G_VERSION_INFO.BUILD ", Copyright (C) 2014 K.-P. Schreiner.`n")
+			Ansi.WriteLine(G_VERSION_INFO.NAME "/" G_VERSION_INFO.ARCH "-b" G_VERSION_INFO.BUILD ", Copyright (C) 2014 K.-P. Schreiner.")
 			exitapp _main.Exit(0x00)
 		} else if (G_help) {
-			Console.Write(op.Usage() "`n")
+			Ansi.WriteLine(op.Usage())
 			exitapp _main.Exit(0xff)
 		}
 
@@ -42,8 +42,8 @@ Main:
 		RC := which(progs)
 	} catch _ex {
 		if (_ex.Message)
-			Console.Write(_ex.Message "`n")
-		Console.Write(op.Usage() "`n")
+			Ansi.Write(_ex.Message)
+		Ansi.WriteLine(op.Usage())
 
 		RC := _ex.Extra
 	}
@@ -60,7 +60,17 @@ which(progs) {
 		}
 	}
 	
-	static default_exts := ["", ".COM", ".EXE", ".BAT", ".CMD"]
+	EnvGet path_ext, PATHEXT
+	if (path_ext = "")
+		path_ext_list := ["", ".COM", ".EXE", ".BAT", ".CMD"]
+	else {
+		path_ext_list := StrSplit(path_ext, ";")
+		path_ext_list.Insert(1, "")
+	}
+	if (_log.Logs(Logger.Finest)) {
+		_log.Finest("path_ext", path_ext)
+		_log.Finest("path_ext_list:`n" LoggingHelper.Dump(path_ext_list))
+	}
 
 	failed := 0
 
@@ -84,8 +94,8 @@ __loop_progs__:
 		}
 		if (file_dir) {
 			found := ""
-			loop % default_exts.MaxIndex() {
-				search_prog := prog default_exts[A_Index]
+			loop % path_ext_list.MaxIndex() {
+				search_prog := prog path_ext_list[A_Index]
 				if (check_file(search_prog))
 					break __loop_progs__
 			}
@@ -93,8 +103,8 @@ __loop_progs__:
 		} else {
 			loop % path_list.MaxIndex() {
 				search_path := path_list[A_Index]
-				loop % default_exts.MaxIndex() {
-					search_prog := search_path "\" prog default_exts[A_Index]
+				loop % path_ext_list.MaxIndex() {
+					search_prog := search_path "\" prog path_ext_list[A_Index]
 					if (check_file(search_prog))
 						break __loop_progs__
 				}
@@ -114,7 +124,7 @@ check_file(file_name) {
 	}
 
 	if (RegExMatch(FileExist(file_name), "[RASHNOCT]")) {
-		Console.Write(file_name "`n")
+		Ansi.WriteLine(file_name)
 		return _log.Exit(true)
 	}
 	
@@ -134,7 +144,7 @@ not_found(prog, path, ByRef failed = 0) {
 		_log.Output("failed", failed)
 	}
 
-	Console.Write(A_ScriptName ": no " prog " in (" path ")`n")
+	Ansi.WriteLine(A_ScriptName ": no " prog " in (" path ")")
 	failed++
 
 	return _log.Exit()
