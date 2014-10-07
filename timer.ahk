@@ -4,7 +4,7 @@
 SetBatchLines -1
 
 #Include <logging>
-#Include <console>
+#Include <ansi>
 
 opt_TIMEOUT := 30000
 opt_HIDE := false
@@ -29,7 +29,10 @@ global PID
 _start := A_TickCount
 if (opt_Hide)
 	WinHide, A
-RunWait %params%,,, PID
+RunWait %params%,,UseErrorLevel, PID
+RC := ErrorLevel
+if (RC)
+	Ansi.WriteLine("exit    " RC)
 _duration := A_TickCount - _start
 if (opt_Hide)
 	WinShow, A
@@ -37,16 +40,17 @@ if (opt_Hide)
 _m := _duration // 60000
 SetFormat Float, 5.3
 _s := Mod(_duration, 60000) / 1000 
-FileAppend % "`nreal    " _m "m" _s "s", *
+Ansi.WriteLine("real    " _m "m" _s "s")
 
 exitapp _duration
 
 Usage:
-	Console.Write("timer [-t<millis>] [-q] <command>`n")
-	Console.Write("`n")
-	Console.Write("-h           Hide window`n")
-	Console.Write("-t<millis>   Set timeout to show hidden window (default 30000 msec)`n")
-	Console.Write("--help       Print usage`n`n")
+	Ansi.WriteLine("timer [-t<millis>] [-h] <command>")
+	Ansi.WriteLine()
+	Ansi.WriteLine("-h           Hide window")
+	Ansi.WriteLine("-t<millis>   Set timeout to show hidden window (default 30000 msec)")
+	Ansi.WriteLine("--help       Print usage")
+	Ansi.WriteLine()
 exitapp
 
 WatchDog:
@@ -59,3 +63,4 @@ WatchDog:
 		SetTimer WatchDog, Off
 	}
 return
+; vim: ts=4:sts=4:sw=4:tw=0:noet
