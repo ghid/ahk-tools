@@ -10,16 +10,23 @@ opt_TIMEOUT := 30000
 opt_HIDE := false
 
 params := ""
+expect_timer_args := true
 loop %0%
 {
-	if (%A_Index% = "--help")
-		goto Usage
-	if (RegExMatch(%A_Index%, "-t(\d+)", $)) {
-		opt_TIMEOUT := $1
-	} else if (%A_Index% = "-h")
-		opt_HIDE := true
-	else
-		params .= %A_Index% " "
+	if (SubStr(%A_Index%, 1, 1) <> "-")
+		expect_timer_args := false
+	if (expect_timer_args) {
+		if (%A_Index% = "--help")
+			goto Usage
+		if (RegExMatch(%A_Index%, "-t(\d+)", $)) {
+			opt_TIMEOUT := $1
+			continue
+		} else if (%A_Index% = "-h") {
+			opt_HIDE := true
+			continue
+		}
+	}
+	params .= %A_Index% " "
 }
 
 SetTimer WatchDog, 1000, 2147483647 
