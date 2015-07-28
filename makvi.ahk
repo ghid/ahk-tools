@@ -15,6 +15,10 @@ Main:
 	op := new OptParser("makvi [-x=< 86 | 64 >] <appname> <version>")
 	op.Add(new OptParser.String("x", "", G_arch, "86|64", "generate version info for x86 or x64 architecture (default is 64)", OptParser.OPT_ARG,, G_arch))
 	op.Add(new OptParser.Boolean("v", "version", G_v, "Version info", OptParser.OPT_HIDDEN))
+	op.Add(new OptParser.Group("Example:`n`tabout() {`n`t`tglobal G_VERSION_INFO`n`n`t`tversion_info := G_VERSION_INFO.NAME`n"
+			. "`t`t`t . ""/""  G_VERSION_INFO.ARCH`n"
+			. "`t`t`t . ""-b"" G_VERSION_INFO.BUILD`n"
+			. "`t}"))
 	
 	try {
 		args := op.Parse(System.vArgs)
