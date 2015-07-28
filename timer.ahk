@@ -5,6 +5,7 @@ SetBatchLines -1
 
 #Include <logging>
 #Include <ansi>
+#Include *i %A_ScriptDir%\timer.versioninfo
 
 opt_TIMEOUT := 30000
 opt_HIDE := false
@@ -18,6 +19,8 @@ loop %0%
 	if (expect_timer_args) {
 		if (%A_Index% = "--help")
 			goto Usage
+		if (%A_Index% = "--version")
+			goto About
 		if (RegExMatch(%A_Index%, "-t(\d+)", $)) {
 			opt_TIMEOUT := $1
 			continue
@@ -58,6 +61,10 @@ Usage:
 	Ansi.WriteLine("-t<millis>   Set timeout to show hidden window (default 30000 msec)")
 	Ansi.WriteLine("--help       Print usage")
 	Ansi.WriteLine()
+exitapp
+
+About:
+	Ansi.WriteLine(G_VERSION_INFO.NAME "/" G_VERSION_INFO.ARCH "-b" G_VERSION_INFO.BUILD)
 exitapp
 
 WatchDog:
