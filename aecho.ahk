@@ -26,6 +26,7 @@ Main:
 	op.Add(new OptParser.Boolean("r", "reset", G_reset, "Turn all attributes off after writing the string (default)", OptParser.OPT_NEG|OptParser.OPT_NEG_USAGE, true))
 	op.Add(new OptParser.Boolean("p", "prompt", G_prompt, "Read from standard input"))
 	op.Add(new OptParser.Boolean("c", "concealed", G_concealed, "Concealed input (e.g. for passwords)"))
+	op.Add(new OptParser.String(0, "debug", G_debug, "debug-message", "Write debug output"))
 	op.Add(new OptParser.Boolean("h", "help", G_help, "Display help", OptParser.OPT_HIDDEN))
 	op.Add(new OptParser.Group("`n    $E will be transformed to Ansi escape code \033 (0x1b)"))
 
@@ -43,6 +44,12 @@ Main:
 			Ansi.WriteLine(op.Usage())
 			exitapp
 		}
+
+		if (G_debug) {
+			OptParser.TrimArg(G_Debug, false)
+			OutputDebug %G_Debug%
+		}
+			
 		if (!G_prompt) {
 			if (args.MaxIndex() > 1)
 				throw Exception("error: Too many arguments")
@@ -74,7 +81,7 @@ Main:
 
 			Ansi.Write(data)
 		}
-			
+
 	} catch _ex {
 		Ansi.WriteLine(_ex.Message)
 		Ansi.WriteLine(op.Usage())
