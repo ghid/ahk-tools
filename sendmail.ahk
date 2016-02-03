@@ -26,6 +26,7 @@ _main := new Logger("app.sendmail.Main")
 					 , to: ""
 					 , cc: ""
 					 , bcc: ""
+					 , reply_to: ""
 					 , attachments: ""
 					 , timeout: 60
 					 , sendusing: SENDUSING_PORT
@@ -47,6 +48,7 @@ _main := new Logger("app.sendmail.Main")
 	op.Add(new OptParser.String("t", "to", _to, "recipient", "Recipient of the mail", OptParser.OPT_ARG | OptParser.OPT_MULTIPLE))
 	op.Add(new OptParser.String("c", "cc", _cc, "recipient", "Carbon copy recipient of the mail", OptParser.OPT_ARG | OptParser.OPT_MULTIPLE))
 	op.Add(new OptParser.String("b", "bcc", _bcc, "recipient", "Blind carbon copy recipient of the mail", OptParser.OPT_ARG | OptParser.OPT_MULTIPLE))
+	op.Add(new OptParser.String("r", "reply-to", _reply_to, "address", "Set a reply-to address", OptParser.OPT_ARG))
 	op.Add(new OptParser.String("S", "smtp-server", _smpt_server, "hostname", "SMTP server name"))
 	op.Add(new OptParser.String("P", "smtp-port", _smpt_port, "port", "SMTP server port (default: %i)".Subst(G_opts["smtp_port"]),OptParser.OPT_ARG, G_opts["smtp_port"], G_opts["smtp_port"]))
 	op.Add(new OptParser.String("T", "timeout", _timeout, "secs", "SMTP connection time out (default: %i secs)".Subst(G_opts["timeout"]), OptParser.OPT_ARG, G_opts["timeout"], G_opts["timeout"]))
@@ -67,6 +69,7 @@ _main := new Logger("app.sendmail.Main")
 		op.TrimArg(_to)
 		op.TrimArg(_cc)
 		op.TrimArg(_bcc)
+		op.TrimArg(_reply_to)
 		op.TrimArg(_subject)
 		op.TrimArg(_sendusing)
 		op.TrimArg(_smpt_server)
@@ -81,6 +84,7 @@ _main := new Logger("app.sendmail.Main")
 		G_opts["to"] := (addr.MaxIndex() <> "" ? Arrays.ToString(addr, ", ") ", " : "") _to.Replace("`n", ", ")
 		G_opts["cc"] := _cc.Replace("`n", ", ")
 		G_opts["bcc"] := _bcc.Replace("`n", ", ")
+		G_opts["reply_to"] := _reply_to
 		G_opts["subject"] := _subject
 		G_opts["attachments"] := _attachments.Replace("`n", "|")
 		G_opts["sendusing"] := _sendusing
@@ -158,6 +162,8 @@ send_mail() {
 	pmsg.BCC 					 := G_opts["Bcc"]  ; ""   									; Blind Carbon Copy, Invisible for all, same syntax as CC
 	pmsg.CC 					 := G_opts["cc"]   ; ""										; Somebody@somewhere.com, Other-somebody@somewhere.com
 	pmsg.Subject 				 := G_opts["subject"] ; "See below"
+	if (G_opts["reply_to"])
+		pmsg.ReplyTo := G_opts["reply_to"]
 	if (G_opts["html"])
 		pmsg.HtmlBody            := G_opts["body"]
 	else
@@ -191,6 +197,7 @@ send_mail() {
 		_log.Finest("pmsg.To", pmsg.To)
 		_log.Finest("pmsg.CC", pmsg.CC)
 		_log.Finest("pmsg.BCC", pmsg.BCC)
+		_log.Finest("pmsg.ReplyTo", pmsg.ReplyTo)
 		_log.Finest("pmsg.Subject", pmsg.Subject)
 		_log.Finest("pmsg.TextBody", pmsg.TextBody)
 		_log.Finest("pmsg.HtmlBody", pmsg.HtmlBody)

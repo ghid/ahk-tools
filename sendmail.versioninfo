@@ -1,1 +1,1 @@
-G_VERSION_INFO := {NAME: "AHK sendmail version 0.9", ARCH: "x64", BUILD: "20151110_150821"}
+G_VERSION_INFO := {NAME: "AHK sendmail version 0.9.1", ARCH: "x64", BUILD: "20160203_114130"}
