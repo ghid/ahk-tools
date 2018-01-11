@@ -1,0 +1,1 @@
+exitapp % DllCall("GetCurrentProcessId")
