@@ -53,7 +53,7 @@ main() {
 		Ansi.WriteLine("    \<zeichen> - Explizites Zeichen")
 		Ansi.WriteLine()
 	} else {
-		fd := new Flimsydata.Simple(A_Now)
+		fd := new Flimsydata.Simple(A_TickCount)
 		Ansi.WriteLine(fd.GetPattern(Opt.pattern))
 	}
 
