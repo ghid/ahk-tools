@@ -38,7 +38,7 @@ main() {
 		Ansi.WriteLine("    v - Vokal kleingeschrieben (a,e,i,o,u)")
 		Ansi.WriteLine("    V - Vokal großgeschrieben (A,E,I,O,U)")
 		Ansi.WriteLine("    c - Konsonant kleingeschrieben (b,c,d,f,g,h,j,k,l,m,n,p,q,r,s,t,v,w,x,y,z)")
-		Ansi.WriteLine("    c - Konsonant großgeschrieben (B,C,D,F,G,H,J,K,L,M,N,P,Q,R,S,T,V,W,X,Y,Z)")
+		Ansi.WriteLine("    C - Konsonant großgeschrieben (B,C,D,F,G,H,J,K,L,M,N,P,Q,R,S,T,V,W,X,Y,Z)")
 		Ansi.WriteLine("    l - Kleinbuchstabe (a-z)")
 		Ansi.WriteLine("    L - Großbuchstabe (A-Z)")
 		Ansi.WriteLine("    x - Buchstabe (a-Z)")
