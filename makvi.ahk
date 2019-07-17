@@ -24,7 +24,7 @@ class MakVi {
         op.Add(new OptParser.Boolean("v", "version", MakVi.options, "v"
             , "Version info"
             , OptParser.OPT_HIDDEN))
-        op.Add(new OptParser.Line("<build>", ["e.g. ""git parse-rev --short HEAD"""
+        op.Add(new OptParser.Line("<build>", ["e.g. ""git rev-parse --short HEAD"""
             , "or   ""cmd /c echo Alpha"""
             , "Default will be a timestamp"]))
         op.Add(new OptParser.Group("Example:`n"

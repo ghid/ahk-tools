@@ -1,1 +1,1 @@
-G_VERSION_INFO := {NAME: "AHK makvi version 0.10.0", ARCH: "x64", BUILD: "e3c029d"}
+G_VERSION_INFO := {NAME: "AHK makvi version 0.10.1", ARCH: "x64", BUILD: "ce502cd"}
