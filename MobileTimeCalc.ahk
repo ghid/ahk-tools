@@ -1,7 +1,7 @@
 ﻿; ahk: con
 #include <logging>
 #include <system>
-#include <calendar>
+#include <calendar\calendar>
 #include <ansi>
 #include <string>
 
@@ -15,22 +15,22 @@ if (System.vArgs.MaxIndex() = "" || System.vArgs[1] = "-h" || System.vArgs[1] = 
 
 try {
 	work := StrSplit(System.vArgs[1], "-")
-	start := new Calendar().Time(work[1])
-	end := new Calendar().Time(work[2])
+	start := new Calendar().setAsTime(work[1])
+	end := new Calendar().setAsTime(work[2])
 
 	breaks := []
 	loop % System.vArgs.MaxIndex() - 1 {
 		breaks.Push(System.vArgs[A_Index + 1])
 	}
 
-	duration := start.Compare(end, Calendar.Units.MINUTES)
+	duration := start.compare(end, Calendar.Units.MINUTES)
 
 	brk_dur := 0
 	brk_text := ""
 	loop % breaks.MaxIndex() {
 		brk := StrSplit(breaks[A_Index], "-")
-		brk_st := new Calendar().Time(brk[1])
-		brk_end := new Calendar().Time(brk[2])
+		brk_st := new Calendar().setAsTime(brk[1])
+		brk_end := new Calendar().setAsTime(brk[2])
 		brk_dur += brk_st.Compare(brk_end, Calendar.Units.MINUTES)
 		brk_text .= (brk_text = "" ? "" : ", ") brk_st.FormatTime("HH:mm") "-" brk_end.FormatTime("HH:mm")
 	}
@@ -45,15 +45,15 @@ try {
 		MinsPause := 60
 
 	SetFormat Float, 0.2
-	Ansi.WriteLine("Kommt: " start.FormatTime("HH:mm"))
-	Ansi.WriteLine("Geht:  " end.FormatTime("HH:mm"))
+	Ansi.WriteLine("Kommt: " start.formatTime("HH:mm"))
+	Ansi.WriteLine("Geht:  " end.formatTime("HH:mm"))
 	; Ansi.WriteLine("Abwsd: " (brk_dur / 60.0))
 	Ansi.WriteLine("Abwsd: %f ~ %s".Printf(dec_time(brk_dur / 60.0), brk_text))
 	e_end := start.clone()
 	e_end := e_end.Adjust(0, 0, 0, 0, duration - brk_dur)
 
 	Ansi.WriteLine("EGeht: " e_end.FormatTime("HH:mm"))
-	e_anwsd := (start.Compare(e_end, Calendar.Units.MINUTES) - MinsPause) / 60.0
+	e_anwsd := (start.compare(e_end, Calendar.Units.MINUTES) - MinsPause) / 60.0
 	Ansi.WriteLine("`nPause: " MinsPause)
 	Ansi.WriteLine("EAnwh: " e_anwsd)
 	e_anwsd += 0.0

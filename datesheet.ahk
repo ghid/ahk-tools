@@ -13,20 +13,22 @@ SetControlDelay, -1
 SendMode Input
 
 #include <logging>
-#include <calendar>
+#include <calendar\calendar>
 #include <ansi>
-#include <optparser>
+#include <optparser\optparser>
 #include <system>
 #include <string>
 #include *i %A_ScriptDir%\datesheet.versioninfo
 
+class Opt {
+	static help := false
+	static version := false
+	static wiki := false
+}
+
 Main:
 	_main := new Logger("app.datesheet." A_ThisFunc)
 	
-	global G_wiki
-		 , G_help
-		 , G_version
-
 	global G_VERSION_INFO
 
 	global RC_OK := 1
@@ -34,21 +36,21 @@ Main:
 
 
 	op := new OptParser("[options] [month] [year]")
-	op.Add(new OptParser.Group("Options"))
-	op.Add(new OptParser.Boolean("h", "help", G_help, "Print usage", OptParser.OPT_HIDDEN))
-	op.Add(new OptParser.Boolean("v", "version", G_version, "Print version info"))
-	op.Add(new OptParser.Boolean("w", "wiki", G_wiki, "Generate wiki markup output"))
+	op.add(new OptParser.Group("Options"))
+	op.add(new OptParser.Boolean("h", "help", Opt, "help", "Print usage", OptParser.OPT_HIDDEN))
+	op.add(new OptParser.Boolean("v", "version", Opt, "version", "Print version info"))
+	op.add(new OptParser.Boolean("w", "wiki", Opt, "wiki", "Generate wiki markup output"))
 
 	rc := RC_OK
-	date := new Calendar().Day(1)
+	date := new Calendar().setAsDay(1)
 
 	try {
-		args := op.Parse(System.vArgs)
-		if (args.MaxIndex() > 0) {
-			date.Month(Arrays.Shift(args))
-			if (args.MaxIndex() > 0) {
-				date.Year(Arrays.Shift(args))
-				if (args.MaxIndex() > 0)
+		args := op.parse(System.vArgs)
+		if (args.maxIndex() > 0) {
+			date.setAsMonth(Arrays.shift(args))
+			if (args.maxIndex() > 0) {
+				date.setAsYear(Arrays.shift(args))
+				if (args.maxIndex() > 0)
 					throw Exception("error: Too much arguments",, RC_TOO_MUCH_ARGS)
 			}
 		}
@@ -56,19 +58,19 @@ Main:
 			_main.Finest("date.Month()", date.Month())
 			_main.Finest("date.Year()", date.Year())
 		}
-		if (G_help) {
-			Ansi.WriteLine(op.Usage())
-		} else if (G_version) {
-			Ansi.WriteLine(G_VERSION_INFO.NAME
+		if (Opt.help) {
+			Ansi.writeLine(op.usage())
+		} else if (Opt.version) {
+			Ansi.writeLine(G_VERSION_INFO.NAME
 					. "/"  G_VERSION_INFO.ARCH
 					. "-b" G_VERSION_INFO.BUILD)
 		} else {
 			output(date)
 		}
 	} catch _ex	{
-		Ansi.WriteLine(_ex.Message)	
-		Ansi.WriteLine(op.Usage())
-		rc := _ex.Extra
+		Ansi.writeLine(_ex.message)	
+		Ansi.writeLine(op.usage())
+		rc := _ex.extra
 	}
 	
 exitapp _main.Exit(rc)
@@ -85,57 +87,57 @@ output(date) {
 
 	; Ansi.WriteLine("`n" date.Month() " / " date.Year() "`n")
 	; Ansi.WriteLine("KW`tMo`tDi`tMi`tDo`tFr`tSa`tSo")
-	Ansi.WriteLine(format_header(date))
+	Ansi.writeLine(format_header(date))
 	
 	start := date
-	recent_sunday := date.FindWeekDay(Calendar.SUNDAY, Calendar.FIND_RECENT)
-	distance := recent_sunday.Compare(date, Calendar.Units.DAYS)
+	recent_sunday := date.findWeekDay(Calendar.SUNDAY, Calendar.FIND_RECENT)
+	distance := recent_sunday.compare(date, Calendar.Units.DAYS)
 	if (_log.Logs(Logger.Finest)) {
 		_log.Finest("recent_sunday", recent_sunday)
 		_log.Finest("distance", distance)
 	}
 	; Ansi.Write(date.Week() "`t")
-	Ansi.Write(format_week(date))
+	Ansi.write(format_week(date))
 	loop % distance - 1
-		Ansi.Write(format_distance())
-	loop % date.DaysInMonth() {
-		Ansi.Write(format_day(date))	
-		if (date.DayOfWeek() = Calendar.SUNDAY) {
-			Ansi.WriteLine()
-			if (date.Day() < date.DaysInMonth()) {
-				date := date.Adjust(0, 0, 1)
+		Ansi.write(format_distance())
+	loop % date.daysInMonth() {
+		Ansi.write(format_day(date))	
+		if (date.dayOfWeek() = Calendar.SUNDAY) {
+			Ansi.writeLine()
+			if (date.asDay() < date.daysInMonth()) {
+				date := date.adjust(0, 0, 1)
 				; Ansi.Write(date.Week() "`t")
-				Ansi.Write(format_week(date))
+				Ansi.write(format_week(date))
 			}
 		} else
-			date := date.Adjust(0, 0, 1)
+			date := date.adjust(0, 0, 1)
 	}
-	Ansi.WriteLine()
+	Ansi.writeLine()
 
 
 	return _log.Exit()
 }
 
 format_header(date) {
-	if (G_wiki)
-		return "|| *" date.Month() " / " date.Year() "* ||`n"
+	if (Opt.wiki)
+		return "|| *" date.asMonth() " / " date.asYear() "* ||`n"
 			 . "||KW||Mo||Di||Mi||Do||Fr||Sa||So||"
 	else
-		return "`n" date.Month() " / " date.Year() "`n"
+		return "`n" date.asMonth() " / " date.asYear() "`n"
 			 . "KW`tMo`tDi`tMi`tDo`tFr`tSa`tSo"
 }
 
 format_week(date) {
-	if (G_wiki)
-		return "|*" date.Week() "*|"
+	if (Opt.wiki)
+		return "|*" date.week() "*|"
 	else
-		return date.Week() "`t"
+		return date.week() "`t"
 }
 
 format_day(date) {
-	d := date.FormatTime("d").Pad(String.PAD_LEFT, 2)
-	if (G_wiki) {
-		wd := date.DayOfWeek()
+	d := date.formatTime("d").pad(String.PAD_LEFT, 2)
+	if (Opt.wiki) {
+		wd := date.dayOfWeek()
 		if (wd = Calendar.SATURDAY || wd = Calendar.SUNDAY)
 			return "{color:" (wd = Calendar.SATURDAY ? "grey}" : "red}") d "{color}|"
 		else
@@ -145,7 +147,7 @@ format_day(date) {
 }
 
 format_distance() {
-	if (G_wiki)
+	if (Opt.wiki)
 		return " |"
 	else
 		return "`t"

@@ -39,7 +39,7 @@ Main:
     l_cp := StrPutVar(st, st_cp, cp)
     st := Base64.Encode(st_cp, l_cp)
     OutputDebug %A_ScriptName% l_cp=%l_cp% st="%st%"
-    Ansi.WriteLine(st)
+    Ansi.Write(st)
     }
     catch err
     {

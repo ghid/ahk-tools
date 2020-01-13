@@ -1,41 +1,45 @@
+; ahk: console
 #Include <logging>
 #Include <ansi>
-#Include <optparser>
+#Include <optparser\optparser>
 #Include <system>
-#Include <calendar>
+#Include <calendar\calendar>
 #Include <string>
 #Include *i %A_ScriptDir%\makchid.versioninfo
+
+class Opt {
+	arch := "64"
+	appname := ""
+	version := ""
+	v := false
+}
 
 Main:
 	_main := new Logger("app.makchid." A_ThisFunc)
 
-	global G_arch, G_appname, G_version, G_v
-
-	G_arch := 64
-	
 	op := new OptParser("makchid")
-	op.Add(new OptParser.Boolean("v", "version", G_v, "Version info", OptParser.OPT_HIDDEN))
+	op.add(new OptParser.Boolean("v", "version", Opt, "v", "Version info", OptParser.OPT_HIDDEN))
 	
 	try {
-		args := op.Parse(System.vArgs)
+		args := op.parse(System.vArgs)
 
 		if (_main.Logs(Logger.Finest)) {
-			_main.Finest("G_v", G_v)
+			_main.Finest("Opt:`n" LoggingHelper.dump(Opt))
 		}
 
-		if (G_v) {
-			Ansi.WriteLine(G_VERSION_INFO.NAME "/" G_VERSION_INFO.ARCH "-b" G_VERSION_INFO.BUILD)
+		if (Opt.v) {
+			Ansi.writeLine(G_VERSION_INFO.NAME "/" G_VERSION_INFO.ARCH "-b" G_VERSION_INFO.BUILD)
 			exitapp _main.Exit()
 		}
 
 		cal := new Calendar()
-		nsecs0 := new Calendar(A_YYYY A_MM A_DD).Compare(cal, Calendar.UNITS.MINUTES)
-		cid := (A_YYYY).SubStr(-1) "-" (cal.Julian() nsecs0).AsHex(String.ASHEX_UPPER|String.ASHEX_NOPREFIX, 5)
+		nsecs0 := new Calendar(A_YYYY A_MM A_DD).compare(cal, Calendar.UNITS.MINUTES)
+		cid := SubStr(cal.asYear(), -1) "-" (cal.asJulian() nsecs0).asHex(String.ASHEX_UPPER|String.ASHEX_NOPREFIX, 5)
 
-		Ansi.WriteLine(cid)
+		Ansi.writeLine(cid)
 	} catch _ex {
-		Ansi.WriteLine(_ex.Message)
-		Ansi.WriteLine(op.Usage())
+		Ansi.writeLine(_ex.message)
+		Ansi.writeLine(op.usage())
 	}
 
 exitapp _main.Exit()

@@ -6,7 +6,7 @@ stNeedle = %2%
 nGroup = %3%
 stRegExOpts = %4%
 stRegExOpts .= "O)"
-OutputDebug stHaystack = %stHaystack%`; stNeedle = %stNeedle%`; nGroup = %nGroup%`; stReExOpts = %stRegExOpts%
+OutputDebug stHaystack = %stHaystack%`; stNeedle = %stNeedle%`; nGroup = %nGroup%`; stReExOpts = %stRegExOpts% ; ahklint-ignore: W002
 
 res := RegExMatch(stHaystack, stRegExOpts stNeedle, $)
 if (nGroup) {
@@ -18,4 +18,4 @@ if (nGroup) {
 }
 
 OutputDebug res=%res%
-exitapp (res)
+exit res

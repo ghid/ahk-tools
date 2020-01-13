@@ -11,8 +11,8 @@ Main:
     if (System.vArgs.MaxIndex() < 1)
     {
         stdin := FileOpen("*", "r")
-        ; st := Trim(stdin.Readline(), "`r`n")
-        st := stdin.Read()
+        st := Trim(stdin.Readline(), "`r`n")
+        ; st := stdin.Read()
         cp := (B64_CP <> "" ? B64_CP : "cp1252")
     }
     else if (System.vArgs[1] = "-h" || System.vArgs[1] = "--help" || System.vArgs[1] = "/?")
