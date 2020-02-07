@@ -1,45 +1,56 @@
-#NoEnv
-SetBatchLines -1
-ListLines Off
-#include <logging>
-#include <system>
-#include <base64>
-#include <ansi>
+; ahk: console
+#Warn all, StdOut
 
-Main:
-    B64_CP := System.EnvGet("B64_CP")
-    if (System.vArgs.MaxIndex() < 1)
-    {
-        stdin := FileOpen("*", "r")
-        st := Trim(stdin.Readline(), "`r`n")
-        ; st := stdin.Read()
-        cp := (B64_CP <> "" ? B64_CP : "cp1252")
-    }
-    else if (System.vArgs[1] = "-h" || System.vArgs[1] = "--help" || System.vArgs[1] = "/?")
-    {
-        Ansi.WriteLine("usage: b64dec <string> [encoding]")
-        Ansi.WriteLine("   or: Command | b64dec")
-        Ansi.WriteLine("   or: b64dec (to read vom StdIn)")
-        Ansi.WriteLine("`nSet enviromnent variable B64_CP "
-            . "to use a different encoding (Default: cp1252)")
-        exitapp
-    }
-    else
-    {
-        st := System.vArgs[1]
-        cp := (System.vArgs.MaxIndex() > 1 ? System.vArgs[2] : (B64_CP <> "" ? B64_CP : "cp1252"))
-    }
-    try
-    {
-        OutputDebug %A_ScriptName% cp=%cp% st="%st%"
-        l_cp := Base64.Decode(st, 0, Base64.CRYPT_STRING_BASE64, st_cp)
-        st := StrGet(&st_cp, l_cp, cp)
-        OutputDebug %A_ScriptName% l_cp=%l_cp% st="%st%"
-        Ansi.WriteLine(st)
-    }
-    catch err
-    {
-        Ansi.WriteLine(err.Message "(" err.Extra ")")
-        exitapp 0
-    }
-exitapp 1
+class B64Dec extends B64Tool {
+
+	requires() {
+		return [B64Tool]
+	}
+	
+	main(args) {
+		try {
+			rc := 1
+			op := B64Dec.cli()
+			args := op.parse(args)
+			if (B64Dec.Options.help) {
+				Ansi.writeLine(op.usage())
+				rc := ""
+			} else {
+				Ansi.write(B64Dec.decode(args))
+			}
+		} catch e {
+			Ansi.writeLine(e.message)
+			Ansi.writeLine(op.usage())
+			rc := 0
+		}
+		return rc
+	}
+
+	decode(args) {
+		OutputDebug % Format("{:s}: codepage = {:s}", A_ThisFunc
+				, B64Dec.Options.encoding)
+		length := Base64.decode(B64Dec.stringToDecode(args)
+				, 0, Base64.CRYPT_STRING_BASE64, decodedString)
+		return StrGet(&decodedString, length, B64Dec.Options.encoding)
+	}
+
+	stringToDecode(args) {
+		switch args.count() {
+		case 0:
+			return Trim(Ansi.stdIn.readline(), "`r`n")
+		case 1:
+			return args[1]
+		default:
+			throw Exception("error: Too many arguments")
+		}
+	}
+}
+
+#NoEnv ; notest-begin
+#Include <app>
+#Include <cui-libs>
+#Include <Base64>
+
+#Include %A_LineFile%\..\b64tool.ahk
+
+App.checkRequiredClasses(B64Dec).main(A_Args) ; notest-end

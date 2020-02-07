@@ -1,49 +1,64 @@
-#include <logging>
-#include <system>
-#include <base64>
-#include <ansi>
+; ahk: console
+#Warn all, StdOut
 
-StrPutVar(string, ByRef var, encoding)
-{
-    VarSetCapacity(var, StrPut(string, encoding)
-        * ((encoding="utf-16"||encoding="cp1200"||encoding="utf-8") ? 2 : 1) )
-    l := StrPut(string, &var, encoding)
-	return l-1
+class B64Enc extends B64Tool {
+
+	requires() {
+		return [B64Tool]
+	}
+	
+	main(args) {
+		try {
+			rc := 1
+			op := B64Enc.cli()
+			args := op.parse(args)
+			if (B64Enc.Options.help) {
+				Ansi.writeLine(op.usage())
+				rc := ""
+			} else {
+				Ansi.write(B64Enc.encode(args))
+			}
+		} catch e {
+			Ansi.writeLine(e.message)
+			Ansi.writeLine(op.usage())
+			rc := 0
+		}
+		return rc
+	}
+
+	encode(args) {
+		OutputDebug % Format("{:s}: codepage = {:s}", A_ThisFunc
+				, B64Enc.Options.encoding)
+		length := B64Enc.strPutVar(B64Enc.stringToEncode(args)
+				, encodedString, B64Enc.Options.encoding)
+		return Base64.encode(encodedString, length)
+	}
+
+	stringToEncode(args) {
+		switch args.count() {
+		case 0:
+			return Trim(Ansi.stdIn.readline(), "`r`n")
+		case 1:
+			return args[1]
+		default:
+			throw Exception("error: Too many arguments")
+		}
+	}
+
+	strPutVar(string, ByRef var, encoding) {
+		VarSetCapacity(var, StrPut(string, encoding)
+				* ((encoding = "cp1200" || encoding = "cp65001") ? 2 : 1) )
+		l := StrPut(string, &var, encoding)
+		return l-1
+	}
 }
 
-Main:
-    B64_CP := System.EnvGet("B64_CP")
-    if (System.vArgs.MaxIndex() < 1)
-    {
-        stdin := FileOpen("*", "r")
-        st := stdin.Read()
-        cp := (B64_CP <> "" ? B64_CP : "cp1252")
-    }
-    else if (System.vArgs[1] = "-h" || System.vArgs[1] = "--help" || System.vArgs[1] = "/?")
-    {
-        Ansi.WriteLine("usage: b64enc <string> [encoding]")
-        Ansi.WriteLine("   or: Command | b64enc")
-        Ansi.WriteLine("   or: b64enc (to read vom StdIn)")
-        Ansi.WriteLine("`nSet environment variable B64_CP "
-            . "to use a different encoding (Default: cp1252)")
-        exitapp
-    }
-    else
-    {
-        st := System.vArgs[1]
-        cp := (System.vArgs.MaxIndex() > 1 ? System.vArgs[2] : (B64_CP <> "" ? B64_CP : "cp1252"))
-    }
-    try
-    {
-    OutputDebug %A_ScriptName% cp=%cp% st="%st%"
-    l_cp := StrPutVar(st, st_cp, cp)
-    st := Base64.Encode(st_cp, l_cp)
-    OutputDebug %A_ScriptName% l_cp=%l_cp% st="%st%"
-    Ansi.Write(st)
-    }
-    catch err
-    {
-        Ansi.WriteLine(err.Message "(" err.Extra ")")
-        exitapp 0
-    }
-exitapp 1
+#NoEnv ; notest-begin
+#Include <app>
+#Include <cui-libs>
+#Include <Base64>
+
+#Include %A_LineFile%\..\b64tool.ahk
+
+App.checkRequiredClasses(B64Enc).main(A_Args) ; notest-end
+
