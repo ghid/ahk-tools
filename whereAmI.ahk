@@ -1,4 +1,4 @@
-; ahk: console
+﻿;@Ahk2Exe-ConsoleApp
 #NoEnv
 #NoTrayIcon
 if (!A_IsCompiled) {
@@ -19,7 +19,7 @@ SetBatchLines -1
 
 Main:
 	infoAboutMonitors := retrieveInfoAboutAvailableMonitors()
-	Ansi.write(fred(infoAboutMonitors))
+	Ansi.write(currentScreenSetup(infoAboutMonitors))
 exitapp
 
 retrieveInfoAboutAvailableMonitors() {
@@ -36,7 +36,7 @@ retrieveInfoAboutAvailableMonitors() {
 	return result
 }
 
-fred(infoAboutMonitors) {
+currentScreenSetup(infoAboutMonitors) {
 	result := infoAboutMonitors.primary
 	for _, monitor in infoAboutMonitors.monitors {
 		result .= "[" monitor.left ":" monitor.top ":"
