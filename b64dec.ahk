@@ -1,4 +1,4 @@
-; ahk: console
+﻿;@Ahk2Exe-ConsoleApp
 #Warn all, StdOut
 
 class B64Dec extends B64Tool {
@@ -35,14 +35,16 @@ class B64Dec extends B64Tool {
 	}
 
 	stringToDecode(args) {
+		result := ""
 		switch args.count() {
 		case 0:
-			return Trim(Ansi.stdIn.readline(), "`r`n")
+			result := Trim(Ansi.stdIn.readline(), "`r`n")
 		case 1:
-			return args[1]
+			result := args[1]
 		default:
 			throw Exception("error: Too many arguments")
 		}
+		return result
 	}
 }
 

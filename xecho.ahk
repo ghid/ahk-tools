@@ -1,4 +1,4 @@
-; ahk: console
+﻿; ahk: console
 class XEcho {
 
 	requires() {
@@ -67,7 +67,7 @@ class XEcho {
 		return op
 	}
 
-	run(args) {
+	main(args) {
 		try {
 			op := XEcho.cli()
 			args := op.parse(args)
@@ -194,6 +194,7 @@ Console.Color.Background.WHITE
 }
 
 #NoEnv ; notest-begin
+#SingleInstance Off
 #MaxHotkeysPerInterval 99000000
 #HotkeyInterval 99000000
 #KeyHistory 0
@@ -206,9 +207,7 @@ SetWinDelay, -1
 SetControlDelay, -1
 SendMode Input
 
-#Include <app>
-#Include <lib2>
+#Include <App>
+#Include <cui-libs>
 
-Main:
-	App.checkRequiredClasses(XEcho)
-exitapp XEcho.run(A_Args) ; notest-end
+exitapp App.checkRequiredClasses(XEcho).main(A_Args) ; notest_end

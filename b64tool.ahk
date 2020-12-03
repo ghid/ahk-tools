@@ -1,4 +1,4 @@
-class B64Tool {
+﻿class B64Tool {
 
 	requires() {
 		return [Ansi, Base64, OptParser, String]
