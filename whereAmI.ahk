@@ -1,4 +1,5 @@
 ﻿;@Ahk2Exe-ConsoleApp
+;@Ahk2Exe-Bin Unicode 64*
 #NoEnv
 #NoTrayIcon
 if (!A_IsCompiled) {
