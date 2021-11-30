@@ -9,6 +9,7 @@
 class Opt {
 	static pattern := "cvccvcvl##"
 	static help := false
+    static newLine := false
 }
 
 Main:
@@ -20,6 +21,10 @@ main() {
 			, Opt, "pattern", "Muster"
 			, "Muster für die Passwort-Generierung (Standard: "
 			. Opt.pattern ")",,, Opt.pattern))
+    op.add(new OptParser.Boolean("n", "newline"
+            , Opt, "newLine"
+            , "Append new line (Default: no)"
+            , OptParser.OPT_NEG | OptParser.OPT_NEG_USAGE ))
 	op.add(new OptParser.Boolean("h", "help"
 			, Opt, "help"
 			, "", OptParser.OPT_HIDDEN))
@@ -62,7 +67,7 @@ main() {
 		return ""
 	} else {
 		fd := new Flimsydata.Pattern(A_TickCount)
-		Ansi.writeLine(fd.getPattern(Opt.pattern))
+		Ansi.write(fd.getPattern(Opt.pattern) (Opt.newLine ? "`n":""))
 		return 1
 	}
 }
