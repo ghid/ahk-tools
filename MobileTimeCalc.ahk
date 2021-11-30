@@ -1,4 +1,4 @@
-﻿; ahk: con
+﻿;@Ahk2Exe-ConsoleApp
 #Include <cui-libs>
 #Include <calendar>
 
