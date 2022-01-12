@@ -1,4 +1,4 @@
-; ahk: console
+﻿;@Ahk2Exe-ConsoleApp
 class MakVi {
 
     static options = MakVi.SetDefaults()
@@ -12,8 +12,6 @@ class MakVi {
     }
 
     Cli() {
-        _log := new Logger("class." A_ThisFunc)
-
         op := new OptParser("makvi [-x=< 86 | 64 >] <appname> <version> <build>")
         op.Add(new OptParser.String("x", "", MakVi.options, "arch", "86|64"
             , "generate version info for x86 or x64 architecture (default is 64)"
@@ -35,18 +33,10 @@ class MakVi {
             . "`t`t`t . ""-b"" G_VERSION_INFO.BUILD`n"
             . "`t}"))
 
-        return _log.Exit(op)
+        return op
     }
 
     Run(args) {
-        _log := new Logger("class." A_ThisFunc)
-
-        if (_log.Logs(Logger.Input))
-        {
-            _log.Finest("args", args)
-            _log.Logs(Logger.Finest, "args:`n" LoggingHelper.Dump(args))
-        }
-
         try {
             op := MakVi.Cli()
             args := op.Parse(args)
@@ -54,8 +44,6 @@ class MakVi {
             MakVi.options.appname := Arrays.Shift(args)
             MakVi.options.version := Arrays.Shift(args)
             MakVi.options.build := Arrays.Shift(args)
-
-            _log.Logs(Logger.Finest, "MakVi.options:`n" LoggingHelper.Dump(MakVi.options))
 
             if (MakVi.options.h) {
                 Ansi.WriteLine(op.Usage())
@@ -72,7 +60,7 @@ class MakVi {
                 if (MakVi.options.Build = "")
                     FormatTime build,, yyyyMMdd_HHmmss
                 else
-                    build := RegExReplace(StdOutToVar_CreateProcess(MakVi.options.Build), "[\n\r]*$", "")
+                    build := RegExReplace(System.runProcess(MakVi.options.Build), "[\n\r]*$", "")
                 MakVi.options.build := build
 
                 if (Arrays.Shift(args))
@@ -81,23 +69,20 @@ class MakVi {
                 Ansi.WriteLine("G_VERSION_INFO := {NAME: ""AHK " MakVi.options.appname " version " MakVi.options.version """, ARCH: ""x" MakVi.options.arch """, BUILD: """ MakVi.options.build """}")
             }
         } catch _ex {
-            _log.Fatal(_ex.Message)
             Ansi.WriteLine(_ex.Message)
             Ansi.WriteLine(op.Usage())
         }
 
-        return _log.Exit()
+        return
     }
 }
 
 #NoEnv                                          ; NOTEST-BEGIN
-#Include <logging>
 #Include <ansi>
 #Include <optparser>
 #Include <system>
 #Include <arrays>
 
 Main:
-	_main := new Logger("app.makvi.Main")
-exitapp _main.Exit(MakVi.Run(System.vArgs))     ; NOTEST-END
+exitapp MakVi.Run(System.vArgs)     ; NOTEST-END
 
