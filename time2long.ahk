@@ -1,4 +1,4 @@
-; ahk: con
+﻿;@Ahk2Exe-ConsoleApp
 #NoEnv
 SetBatchLines -1
 
