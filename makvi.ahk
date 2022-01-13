@@ -12,26 +12,25 @@ class MakVi {
     }
 
     Cli() {
-        op := new OptParser("makvi [-x=< 86 | 64 >] <appname> <version> <build>")
+        op := new OptParser("makvi [-x=< 86 | 64 >] <appname> <version> [build]")
         op.Add(new OptParser.String("x", "", MakVi.options, "arch", "86|64"
             , "generate version info for x86 or x64 architecture (default is 64)"
             , OptParser.OPT_ARG,, MakVi.options.arch))
+        op.Add(new OptParser.Line("build", ["e.g. ""git rev-parse --short HEAD"""
+            , "or   ""cmd /c echo Alpha"""
+            , "Default will be a timestamp"]))
+        op.Add(new OptParser.Group("Example:`n"
+            . "`t#Include myVersionInfoClassFile`n"
+            . "`t...`n"
+            . "`tabout() {`n"
+            . "`t`treturn [1mVersion.Info[0m`n"
+            . "`t}"))
         op.Add(new OptParser.Boolean("h", "help", MakVi.options, "h"
             , "Help usage"
             , OptParser.OPT_HIDDEN))
         op.Add(new OptParser.Boolean("v", "version", MakVi.options, "v"
             , "Version info"
             , OptParser.OPT_HIDDEN))
-        op.Add(new OptParser.Line("<build>", ["e.g. ""git rev-parse --short HEAD"""
-            , "or   ""cmd /c echo Alpha"""
-            , "Default will be a timestamp"]))
-        op.Add(new OptParser.Group("Example:`n"
-            . "`tabout() {`n"
-            . "`t`tglobal G_VERSION_INFO`n`n"
-            . "`t`tversion_info := G_VERSION_INFO.NAME`n"
-            . "`t`t`t . ""/""  G_VERSION_INFO.ARCH`n"
-            . "`t`t`t . ""-b"" G_VERSION_INFO.BUILD`n"
-            . "`t}"))
 
         return op
     }
@@ -48,8 +47,7 @@ class MakVi {
             if (MakVi.options.h) {
                 Ansi.WriteLine(op.Usage())
             } else if (MakVi.options.v) {
-                #Include *i %A_ScriptDir%\makvi.versioninfo
-                Ansi.WriteLine(G_VERSION_INFO.NAME "/" G_VERSION_INFO.ARCH "-b" G_VERSION_INFO.BUILD)
+                Ansi.WriteLine(Version.Info)
             } else {
                 if (MakVi.options.appname = "")
                     throw Exception("error: missing argument 'appname'")
@@ -65,8 +63,9 @@ class MakVi {
 
                 if (Arrays.Shift(args))
                     throw Exception("error: invalid argument(s)")
-
-                Ansi.WriteLine("G_VERSION_INFO := {NAME: ""AHK " MakVi.options.appname " version " MakVi.options.version """, ARCH: ""x" MakVi.options.arch """, BUILD: """ MakVi.options.build """}")
+                Ansi.writeLine(MakVi.generateVersionClass(MakVi.options.appname
+                    , MakVi.options.version, MakVi.options.arch
+                    , MakVi.options.build)) 
             }
         } catch _ex {
             Ansi.WriteLine(_ex.Message)
@@ -75,14 +74,22 @@ class MakVi {
 
         return
     }
+
+    generateVersionClass(appName, version, arch, build) {
+        return "class Version {`n  Info {`n    get {`n"
+                . Format("      return ""AHK {:s} version {:s}/x{:s}-{:s}"""
+                , appName, version, arch, build)
+                . "`n    }`n  }`n}"
+    }
 }
 
 #NoEnv                                          ; NOTEST-BEGIN
 #Include <ansi>
 #Include <optparser>
+#Include <string>
 #Include <system>
 #Include <arrays>
+#Include *i %A_ScriptDir%\makvi.versioninfo
 
 Main:
 exitapp MakVi.Run(System.vArgs)     ; NOTEST-END
-
