@@ -1,48 +1,4 @@
-;@Ahk2Exe-ConsoleApp
-
-/*
-set AHK_LIB=%userprofile%\Documents\AutoHotkey\lib
-
-if not exist .\modules\ (
-    echo Plaese run from lib's base dir...
-    goto:eof
-)
-
-if exist %1 (
-    for /D %%s in (%1) do (
-        set module_name=%%~ns
-        goto:synch
-    )
-)
-if exist %1.ahk (
-    set module_name=%1
-    goto:synch
-)
-
-:synch
-set exclude=
-if exist .\modules\%module_name%\xcopy.ignore (
-    set exclude=/EXCLUDE:.\modules\%module_name%\xcopy.ignore
-    xecho -n "$E[1mThe following file(s) will be ignored (xcopy.ignore):"
-    xecho -n "$E[96m.\modules\%module_name%\xcopy.ignore:"
-    type .\modules\%module_name%\xcopy.ignore
-    echo.
-)
-if exist "%AHK_LIB%\%module_name%.ahk" (
-    attrib -R "%AHK_LIB%\%module_name%.ahk"
-)
-copy .\%module_name%.ahk "%AHK_LIB%\%module_name%.ahk"
-if exist .\modules\%module_name%\*.ahk (
-    if not exist "%AHK_LIB%\modules\%module_name%\" (
-        mkdir "%AHK_LIB%\modules\%module_name%\"
-    )
-    attrib -R "%AHK_LIB%\modules\%module_name%\*.*" /S
-    xcopy .\modules\%module_name%\*.ahk "%AHK_LIB%\modules\%module_name%\" /D /E %exclude%
-)
-attrib +R "%AHK_LIB%\*.*" /S
-goto:eof
-*/
-
+﻿;@Ahk2Exe-ConsoleApp
 class AhkDist {
 
     static options := AhkDist.setDefaults()
@@ -154,11 +110,11 @@ class AhkDist {
                         FileCreateDir %targetDir%\modules\%module%
                     }
                 }
-                if (FileExist(targetDir "\modules\" module "\*.ahk")) {
+                if (FileExist(targetDir "\modules\" module "\*")) {
                     AhkDist.verbose("Remove readonly from "
-                            . GREEN targetDir "\modules\" module "\*.ahk")
+                            . GREEN targetDir "\modules\" module "\*")
                     if (!AhkDist.options.whatif) {
-                        FileSetAttrib -R, %targetDir%\modules\%module%\*.ahk
+                        FileSetAttrib -R, %targetDir%\modules\%module%\*
                                 ,, true
                     }
                 }
@@ -166,7 +122,7 @@ class AhkDist {
                         , GREEN module NORMAL
                         , GREEN targetDir "\modules\" module))
                 if (!AhkDist.options.whatif) {
-                    FileCopy .\modules\%module%\*.ahk
+                    FileCopyDir .\modules\%module%\
                             , %targetDir%\modules\%module%, true
                 }
             }
@@ -203,7 +159,10 @@ class AhkDist {
     }
 
     print(message="") {
-        static stdOut := (stdOut == "" ? FileOpen("*", "w"):)
+        static stdOut := 0
+        if (!IsObject(stdOut)) {
+            stdOut := FileOpen("*", "w `n", "utf-8")
+        }
         stdOut.writeLine("[0m" (AhkDist.options.whatif && message != ""
                 ? "what if: " : "") message "[0m")
     }
