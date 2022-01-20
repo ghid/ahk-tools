@@ -1,8 +1,5 @@
-; ahk: console
+﻿;@Ahk2Exe-ConsoleApp
 #NoEnv
-#Include <ansi\ansi>
-
-Ansi.NO_BUFFER := true
 
 while (A_Index <= A_Args.maxIndex()) {
 	findIncludes(A_Args[A_Index])
@@ -12,6 +9,7 @@ findIncludes(sourceFileName) {
 	static nestedLevel := 0
 
 	OutputDebug %This_Func% : test %sourceFileName%
+    writeLine(A_ThisFunc ": test " sourceFileName)
 	if (includeDir == "") {
 		includeDir := A_WorkingDir
 	}
@@ -36,7 +34,7 @@ findIncludes(sourceFileName) {
 			if (isDir(include)) {
 				includeDir := include
 			} else {
-				Ansi.writeLine(nestedLevel ") Includes " includeDir include)
+				writeLine(nestedLevel ") Includes " includeDir include)
 				nestedLevel++
 				findIncludes(include)
 				nestedLevel--
@@ -48,4 +46,9 @@ findIncludes(sourceFileName) {
 
 isDir(fileName) {
 	return Instr(FileExist(fileName), "D")
+}
+
+writeLine(message="") {
+    static stdOut := (stdOut == "" ? FileOpen("*", "w"):)
+    stdOut.writeLine(message)
 }
