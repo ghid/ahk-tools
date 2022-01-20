@@ -58,7 +58,7 @@ class MakVi {
                 if (MakVi.options.Build = "")
                     FormatTime build,, yyyyMMdd_HHmmss
                 else
-                    build := RegExReplace(System.runProcess(MakVi.options.Build), "[\n\r]*$", "")
+                    build := RegExReplace(System.runProcess(MakVi.options.Build, "", "", "", 10000), "[\n\r]*$", "")
                 MakVi.options.build := build
 
                 if (Arrays.Shift(args))
