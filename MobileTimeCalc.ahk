@@ -16,6 +16,9 @@ try {
 	work := StrSplit(A_Args[1], "-")
 	start := new Calendar().setAsTime(work[1])
 	end := new Calendar().setAsTime(work[2])
+    if (end.get() < start.get()) {
+        end := end.adjust(0, 0, 1)
+    }
 
 	breaks := []
 	loop % A_Args.count() - 1 {
